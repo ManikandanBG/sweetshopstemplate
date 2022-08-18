@@ -1,6 +1,48 @@
 class ProductsContainer extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+        searchQuery : ""
+    };
+    this.getItemsUrl = "https://script.google.com/macros/s/AKfycbxiXQZEVPC92sOY8C6IY8-iErL06pA-qMUBhyCMsDIp1mTO-r0LEFPcsthURdfBUIF7/exec";
+    this.filterItems = this.filterItems.bind(this);
+    this.filterBySearchQuery = this.filterBySearchQuery.bind(this);
+    this.handleSearchQueryChange = this.handleSearchQueryChange.bind(this);
+    this.sortItemByRate = this.sortItemByRate.bind(this);
+  }
+
+  componentDidMount() {
+    const that = this;
+    $.getJSON(
+      that.getItemsUrl,
+      {},
+      function (items) {
+        that.setState({
+          items,
+        });
+      }
+    );
+  }
+
+  handleSearchQueryChange(event) {
+    this.setState({searchQuery: event.target.value});
+  }
+
+  sortItemByRate(firstItem, secondItem) {
+    return firstItem.rate - secondItem.rate;
+  }
+
+  filterBySearchQuery(item) {
+    if (!this.state || !this.state.searchQuery) {
+        return true;
+    }
+
+    return item.name.toLowerCase().includes(this.state.searchQuery.toLowerCase());
+  }
+
+
+  filterItems(item) {
+    return this.filterBySearchQuery(item);
   }
 
   render() {
@@ -10,7 +52,12 @@ class ProductsContainer extends React.Component {
           <div className="product-sidebar">
             <div className="product-sidebar__single product-sidebar__search-widget">
               <form action="#">
-                <input type="text" placeholder="Search" />
+                <input 
+                    type="text" 
+                    placeholder="Search" 
+                    value={this.state ? this.state.searchQuery : ""} 
+                    onChange={this.handleSearchQueryChange}
+                />
                 <button
                   className="organik-icon-magnifying-glass"
                   type="submit"
@@ -20,11 +67,14 @@ class ProductsContainer extends React.Component {
             <div className="product-sidebar__single">
               <h3>Price</h3>
               <div className="product-sidebar__price-range">
-                <div className="range-slider-price" id="range-slider-price"></div>
+                {
+                    <input type="range" min="1" max="100" value="50" class="slider" id="myRange" />
+                }
+                
                 <div className="form-group">
                   <div className="left">
                     <p>
-                      $<span id="min-value-rangeslider"></span>
+                      $<span id="min-value-rangeslider">12</span>
                     </p>
                     <span>-</span>
                     <p>
@@ -71,7 +121,9 @@ class ProductsContainer extends React.Component {
         </div>
         <div className="col-sm-12 col-md-12 col-lg-9">
           <div className="product-sorter">
-            <p>Showing 1–9 of 12 results</p>
+            <p>
+              Showing 1–9 of {this.state && this.state.items ? this.state.items.length : 0} results
+            </p>
             <div className="product-sorter__select">
               <select className="selectpicker">
                 <option value="#">Sort by popular</option>
@@ -82,276 +134,48 @@ class ProductsContainer extends React.Component {
             </div>
           </div>
           <div className="row">
-            <div className="col-md-6 col-lg-4">
-              <div className="product-card">
-                <div className="product-card__image">
-                  <img src="assets/images/products/product-1-1.jpg" alt="" />
-                  <div className="product-card__image-content">
-                    <a href="#">
-                      <i className="organik-icon-heart"></i>
-                    </a>
-                    <a href="cart.html">
-                      <i className="organik-icon-shopping-cart"></i>
-                    </a>
+            {this.state && this.state.items ? (
+              this.state.items.filter(this.filterItems).map(function (item, i) {
+                return (
+                  <div className="col-md-6 col-lg-4" key={i}>
+                    <div className="product-card">
+                      <div className="product-card__image">
+                        <img
+                          src={item.imgUrl}
+                          className = "img-fluid"
+                          alt=""
+                        />
+                        <div className="product-card__image-content">
+                          <a href="#">
+                            <i className="organik-icon-heart"></i>
+                          </a>
+                          <a href="cart.html">
+                            <i className="organik-icon-shopping-cart"></i>
+                          </a>
+                        </div>
+                      </div>
+                      <div className="product-card__content">
+                        <div className="product-card__left">
+                          <h3>
+                            <a href="product-details.html">{item.name}</a>
+                          </h3>
+                          <p>${item.rate}</p>
+                        </div>
+                        <div className="product-card__right">
+                          <i className="fa fa-star"></i>
+                          <i className="fa fa-star"></i>
+                          <i className="fa fa-star"></i>
+                          <i className="fa fa-star"></i>
+                          <i className="fa fa-star"></i>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__left">
-                    <h3>
-                      <a href="product-details.html">Banana</a>
-                    </h3>
-                    <p>$1.00</p>
-                  </div>
-                  <div className="product-card__right">
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="product-card">
-                <div className="product-card__image">
-                  <img src="assets/images/products/product-1-2.jpg" alt="" />
-                  <div className="product-card__image-content">
-                    <a href="#">
-                      <i className="organik-icon-heart"></i>
-                    </a>
-                    <a href="cart.html">
-                      <i className="organik-icon-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__left">
-                    <h3>
-                      <a href="product-details.html">Tomatoes</a>
-                    </h3>
-                    <p>$3.00</p>
-                  </div>
-                  <div className="product-card__right">
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="product-card">
-                <div className="product-card__image">
-                  <img src="assets/images/products/product-1-3.jpg" alt="" />
-                  <div className="product-card__image-content">
-                    <a href="#">
-                      <i className="organik-icon-heart"></i>
-                    </a>
-                    <a href="cart.html">
-                      <i className="organik-icon-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__left">
-                    <h3>
-                      <a href="product-details.html">Bread</a>
-                    </h3>
-                    <p>$2.00</p>
-                  </div>
-                  <div className="product-card__right">
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="product-card">
-                <div className="product-card__image">
-                  <img src="assets/images/products/product-1-4.jpg" alt="" />
-                  <div className="product-card__image-content">
-                    <a href="#">
-                      <i className="organik-icon-heart"></i>
-                    </a>
-                    <a href="cart.html">
-                      <i className="organik-icon-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__left">
-                    <h3>
-                      <a href="product-details.html">Apples</a>
-                    </h3>
-                    <p>$5.00</p>
-                  </div>
-                  <div className="product-card__right">
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="product-card">
-                <div className="product-card__image">
-                  <img src="assets/images/products/product-1-5.jpg" alt="" />
-                  <div className="product-card__image-content">
-                    <a href="#">
-                      <i className="organik-icon-heart"></i>
-                    </a>
-                    <a href="cart.html">
-                      <i className="organik-icon-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__left">
-                    <h3>
-                      <a href="product-details.html">Olive Oil</a>
-                    </h3>
-                    <p>$6.00</p>
-                  </div>
-                  <div className="product-card__right">
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="product-card">
-                <div className="product-card__image">
-                  <img src="assets/images/products/product-1-6.jpg" alt="" />
-                  <div className="product-card__image-content">
-                    <a href="#">
-                      <i className="organik-icon-heart"></i>
-                    </a>
-                    <a href="cart.html">
-                      <i className="organik-icon-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__left">
-                    <h3>
-                      <a href="product-details.html">Eggs</a>
-                    </h3>
-                    <p>$4.00</p>
-                  </div>
-                  <div className="product-card__right">
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="product-card">
-                <div className="product-card__image">
-                  <img src="assets/images/products/product-1-7.jpg" alt="" />
-                  <div className="product-card__image-content">
-                    <a href="#">
-                      <i className="organik-icon-heart"></i>
-                    </a>
-                    <a href="cart.html">
-                      <i className="organik-icon-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__left">
-                    <h3>
-                      <a href="product-details.html">Honey</a>
-                    </h3>
-                    <p>$9.00</p>
-                  </div>
-                  <div className="product-card__right">
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="product-card">
-                <div className="product-card__image">
-                  <img src="assets/images/products/product-1-8.jpg" alt="" />
-                  <div className="product-card__image-content">
-                    <a href="#">
-                      <i className="organik-icon-heart"></i>
-                    </a>
-                    <a href="cart.html">
-                      <i className="organik-icon-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__left">
-                    <h3>
-                      <a href="product-details.html">Onions</a>
-                    </h3>
-                    <p>$2.00</p>
-                  </div>
-                  <div className="product-card__right">
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="product-card">
-                <div className="product-card__image">
-                  <img src="assets/images/products/product-1-9.jpg" alt="" />
-                  <div className="product-card__image-content">
-                    <a href="#">
-                      <i className="organik-icon-heart"></i>
-                    </a>
-                    <a href="cart.html">
-                      <i className="organik-icon-shopping-cart"></i>
-                    </a>
-                  </div>
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__left">
-                    <h3>
-                      <a href="product-details.html">Cabbage</a>
-                    </h3>
-                    <p>$3.00</p>
-                  </div>
-                  <div className="product-card__right">
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                    <i className="fa fa-star"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
+                );
+              })
+            ) : (
+              <div>Loading...</div>
+            )}
           </div>
           <div className="text-center">
             <a href="#" className="thm-btn products__load-more">
@@ -364,4 +188,6 @@ class ProductsContainer extends React.Component {
   }
 }
 
-ReactDOM.createRoot(document.getElementById("productsContainer")).render(<ProductsContainer />);
+ReactDOM.createRoot(document.getElementById("productsContainer")).render(
+  <ProductsContainer />
+);

@@ -1,6 +1,43 @@
 class ProductsContainer extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      searchQuery: ""
+    };
+    this.getItemsUrl = "https://script.google.com/macros/s/AKfycbxiXQZEVPC92sOY8C6IY8-iErL06pA-qMUBhyCMsDIp1mTO-r0LEFPcsthURdfBUIF7/exec";
+    this.filterItems = this.filterItems.bind(this);
+    this.filterBySearchQuery = this.filterBySearchQuery.bind(this);
+    this.handleSearchQueryChange = this.handleSearchQueryChange.bind(this);
+    this.sortItemByRate = this.sortItemByRate.bind(this);
+  }
+
+  componentDidMount() {
+    const that = this;
+    $.getJSON(that.getItemsUrl, {}, function (items) {
+      that.setState({
+        items
+      });
+    });
+  }
+
+  handleSearchQueryChange(event) {
+    this.setState({ searchQuery: event.target.value });
+  }
+
+  sortItemByRate(firstItem, secondItem) {
+    return firstItem.rate - secondItem.rate;
+  }
+
+  filterBySearchQuery(item) {
+    if (!this.state || !this.state.searchQuery) {
+      return true;
+    }
+
+    return item.name.toLowerCase().includes(this.state.searchQuery.toLowerCase());
+  }
+
+  filterItems(item) {
+    return this.filterBySearchQuery(item);
   }
 
   render() {
@@ -19,7 +56,12 @@ class ProductsContainer extends React.Component {
             React.createElement(
               "form",
               { action: "#" },
-              React.createElement("input", { type: "text", placeholder: "Search" }),
+              React.createElement("input", {
+                type: "text",
+                placeholder: "Search",
+                value: this.state ? this.state.searchQuery : "",
+                onChange: this.handleSearchQueryChange
+              }),
               React.createElement("button", {
                 className: "organik-icon-magnifying-glass",
                 type: "submit"
@@ -37,7 +79,7 @@ class ProductsContainer extends React.Component {
             React.createElement(
               "div",
               { className: "product-sidebar__price-range" },
-              React.createElement("div", { className: "range-slider-price", id: "range-slider-price" }),
+              React.createElement("input", { type: "range", min: "1", max: "100", value: "50", "class": "slider", id: "myRange" }),
               React.createElement(
                 "div",
                 { className: "form-group" },
@@ -48,7 +90,11 @@ class ProductsContainer extends React.Component {
                     "p",
                     null,
                     "$",
-                    React.createElement("span", { id: "min-value-rangeslider" })
+                    React.createElement(
+                      "span",
+                      { id: "min-value-rangeslider" },
+                      "12"
+                    )
                   ),
                   React.createElement(
                     "span",
@@ -144,7 +190,9 @@ class ProductsContainer extends React.Component {
           React.createElement(
             "p",
             null,
-            "Showing 1\u20139 of 12 results"
+            "Showing 1\u20139 of ",
+            this.state && this.state.items ? this.state.items.length : 0,
+            " results"
           ),
           React.createElement(
             "div",
@@ -178,527 +226,74 @@ class ProductsContainer extends React.Component {
         React.createElement(
           "div",
           { className: "row" },
-          React.createElement(
-            "div",
-            { className: "col-md-6 col-lg-4" },
-            React.createElement(
+          this.state && this.state.items ? this.state.items.filter(this.filterItems).map(function (item, i) {
+            return React.createElement(
               "div",
-              { className: "product-card" },
+              { className: "col-md-6 col-lg-4", key: i },
               React.createElement(
                 "div",
-                { className: "product-card__image" },
-                React.createElement("img", { src: "assets/images/products/product-1-1.jpg", alt: "" }),
+                { className: "product-card" },
                 React.createElement(
                   "div",
-                  { className: "product-card__image-content" },
+                  { className: "product-card__image" },
+                  React.createElement("img", {
+                    src: item.imgUrl,
+                    className: "img-fluid",
+                    alt: ""
+                  }),
                   React.createElement(
-                    "a",
-                    { href: "#" },
-                    React.createElement("i", { className: "organik-icon-heart" })
-                  ),
-                  React.createElement(
-                    "a",
-                    { href: "cart.html" },
-                    React.createElement("i", { className: "organik-icon-shopping-cart" })
-                  )
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "product-card__content" },
-                React.createElement(
-                  "div",
-                  { className: "product-card__left" },
-                  React.createElement(
-                    "h3",
-                    null,
+                    "div",
+                    { className: "product-card__image-content" },
                     React.createElement(
                       "a",
-                      { href: "product-details.html" },
-                      "Banana"
+                      { href: "#" },
+                      React.createElement("i", { className: "organik-icon-heart" })
+                    ),
+                    React.createElement(
+                      "a",
+                      { href: "cart.html" },
+                      React.createElement("i", { className: "organik-icon-shopping-cart" })
                     )
-                  ),
-                  React.createElement(
-                    "p",
-                    null,
-                    "$1.00"
                   )
                 ),
                 React.createElement(
                   "div",
-                  { className: "product-card__right" },
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" })
-                )
-              )
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "col-md-6 col-lg-4" },
-            React.createElement(
-              "div",
-              { className: "product-card" },
-              React.createElement(
-                "div",
-                { className: "product-card__image" },
-                React.createElement("img", { src: "assets/images/products/product-1-2.jpg", alt: "" }),
-                React.createElement(
-                  "div",
-                  { className: "product-card__image-content" },
+                  { className: "product-card__content" },
                   React.createElement(
-                    "a",
-                    { href: "#" },
-                    React.createElement("i", { className: "organik-icon-heart" })
-                  ),
-                  React.createElement(
-                    "a",
-                    { href: "cart.html" },
-                    React.createElement("i", { className: "organik-icon-shopping-cart" })
-                  )
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "product-card__content" },
-                React.createElement(
-                  "div",
-                  { className: "product-card__left" },
-                  React.createElement(
-                    "h3",
-                    null,
+                    "div",
+                    { className: "product-card__left" },
                     React.createElement(
-                      "a",
-                      { href: "product-details.html" },
-                      "Tomatoes"
+                      "h3",
+                      null,
+                      React.createElement(
+                        "a",
+                        { href: "product-details.html" },
+                        item.name
+                      )
+                    ),
+                    React.createElement(
+                      "p",
+                      null,
+                      "$",
+                      item.rate
                     )
                   ),
                   React.createElement(
-                    "p",
-                    null,
-                    "$3.00"
+                    "div",
+                    { className: "product-card__right" },
+                    React.createElement("i", { className: "fa fa-star" }),
+                    React.createElement("i", { className: "fa fa-star" }),
+                    React.createElement("i", { className: "fa fa-star" }),
+                    React.createElement("i", { className: "fa fa-star" }),
+                    React.createElement("i", { className: "fa fa-star" })
                   )
-                ),
-                React.createElement(
-                  "div",
-                  { className: "product-card__right" },
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" })
                 )
               )
-            )
-          ),
-          React.createElement(
+            );
+          }) : React.createElement(
             "div",
-            { className: "col-md-6 col-lg-4" },
-            React.createElement(
-              "div",
-              { className: "product-card" },
-              React.createElement(
-                "div",
-                { className: "product-card__image" },
-                React.createElement("img", { src: "assets/images/products/product-1-3.jpg", alt: "" }),
-                React.createElement(
-                  "div",
-                  { className: "product-card__image-content" },
-                  React.createElement(
-                    "a",
-                    { href: "#" },
-                    React.createElement("i", { className: "organik-icon-heart" })
-                  ),
-                  React.createElement(
-                    "a",
-                    { href: "cart.html" },
-                    React.createElement("i", { className: "organik-icon-shopping-cart" })
-                  )
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "product-card__content" },
-                React.createElement(
-                  "div",
-                  { className: "product-card__left" },
-                  React.createElement(
-                    "h3",
-                    null,
-                    React.createElement(
-                      "a",
-                      { href: "product-details.html" },
-                      "Bread"
-                    )
-                  ),
-                  React.createElement(
-                    "p",
-                    null,
-                    "$2.00"
-                  )
-                ),
-                React.createElement(
-                  "div",
-                  { className: "product-card__right" },
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" })
-                )
-              )
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "col-md-6 col-lg-4" },
-            React.createElement(
-              "div",
-              { className: "product-card" },
-              React.createElement(
-                "div",
-                { className: "product-card__image" },
-                React.createElement("img", { src: "assets/images/products/product-1-4.jpg", alt: "" }),
-                React.createElement(
-                  "div",
-                  { className: "product-card__image-content" },
-                  React.createElement(
-                    "a",
-                    { href: "#" },
-                    React.createElement("i", { className: "organik-icon-heart" })
-                  ),
-                  React.createElement(
-                    "a",
-                    { href: "cart.html" },
-                    React.createElement("i", { className: "organik-icon-shopping-cart" })
-                  )
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "product-card__content" },
-                React.createElement(
-                  "div",
-                  { className: "product-card__left" },
-                  React.createElement(
-                    "h3",
-                    null,
-                    React.createElement(
-                      "a",
-                      { href: "product-details.html" },
-                      "Apples"
-                    )
-                  ),
-                  React.createElement(
-                    "p",
-                    null,
-                    "$5.00"
-                  )
-                ),
-                React.createElement(
-                  "div",
-                  { className: "product-card__right" },
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" })
-                )
-              )
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "col-md-6 col-lg-4" },
-            React.createElement(
-              "div",
-              { className: "product-card" },
-              React.createElement(
-                "div",
-                { className: "product-card__image" },
-                React.createElement("img", { src: "assets/images/products/product-1-5.jpg", alt: "" }),
-                React.createElement(
-                  "div",
-                  { className: "product-card__image-content" },
-                  React.createElement(
-                    "a",
-                    { href: "#" },
-                    React.createElement("i", { className: "organik-icon-heart" })
-                  ),
-                  React.createElement(
-                    "a",
-                    { href: "cart.html" },
-                    React.createElement("i", { className: "organik-icon-shopping-cart" })
-                  )
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "product-card__content" },
-                React.createElement(
-                  "div",
-                  { className: "product-card__left" },
-                  React.createElement(
-                    "h3",
-                    null,
-                    React.createElement(
-                      "a",
-                      { href: "product-details.html" },
-                      "Olive Oil"
-                    )
-                  ),
-                  React.createElement(
-                    "p",
-                    null,
-                    "$6.00"
-                  )
-                ),
-                React.createElement(
-                  "div",
-                  { className: "product-card__right" },
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" })
-                )
-              )
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "col-md-6 col-lg-4" },
-            React.createElement(
-              "div",
-              { className: "product-card" },
-              React.createElement(
-                "div",
-                { className: "product-card__image" },
-                React.createElement("img", { src: "assets/images/products/product-1-6.jpg", alt: "" }),
-                React.createElement(
-                  "div",
-                  { className: "product-card__image-content" },
-                  React.createElement(
-                    "a",
-                    { href: "#" },
-                    React.createElement("i", { className: "organik-icon-heart" })
-                  ),
-                  React.createElement(
-                    "a",
-                    { href: "cart.html" },
-                    React.createElement("i", { className: "organik-icon-shopping-cart" })
-                  )
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "product-card__content" },
-                React.createElement(
-                  "div",
-                  { className: "product-card__left" },
-                  React.createElement(
-                    "h3",
-                    null,
-                    React.createElement(
-                      "a",
-                      { href: "product-details.html" },
-                      "Eggs"
-                    )
-                  ),
-                  React.createElement(
-                    "p",
-                    null,
-                    "$4.00"
-                  )
-                ),
-                React.createElement(
-                  "div",
-                  { className: "product-card__right" },
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" })
-                )
-              )
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "col-md-6 col-lg-4" },
-            React.createElement(
-              "div",
-              { className: "product-card" },
-              React.createElement(
-                "div",
-                { className: "product-card__image" },
-                React.createElement("img", { src: "assets/images/products/product-1-7.jpg", alt: "" }),
-                React.createElement(
-                  "div",
-                  { className: "product-card__image-content" },
-                  React.createElement(
-                    "a",
-                    { href: "#" },
-                    React.createElement("i", { className: "organik-icon-heart" })
-                  ),
-                  React.createElement(
-                    "a",
-                    { href: "cart.html" },
-                    React.createElement("i", { className: "organik-icon-shopping-cart" })
-                  )
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "product-card__content" },
-                React.createElement(
-                  "div",
-                  { className: "product-card__left" },
-                  React.createElement(
-                    "h3",
-                    null,
-                    React.createElement(
-                      "a",
-                      { href: "product-details.html" },
-                      "Honey"
-                    )
-                  ),
-                  React.createElement(
-                    "p",
-                    null,
-                    "$9.00"
-                  )
-                ),
-                React.createElement(
-                  "div",
-                  { className: "product-card__right" },
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" })
-                )
-              )
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "col-md-6 col-lg-4" },
-            React.createElement(
-              "div",
-              { className: "product-card" },
-              React.createElement(
-                "div",
-                { className: "product-card__image" },
-                React.createElement("img", { src: "assets/images/products/product-1-8.jpg", alt: "" }),
-                React.createElement(
-                  "div",
-                  { className: "product-card__image-content" },
-                  React.createElement(
-                    "a",
-                    { href: "#" },
-                    React.createElement("i", { className: "organik-icon-heart" })
-                  ),
-                  React.createElement(
-                    "a",
-                    { href: "cart.html" },
-                    React.createElement("i", { className: "organik-icon-shopping-cart" })
-                  )
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "product-card__content" },
-                React.createElement(
-                  "div",
-                  { className: "product-card__left" },
-                  React.createElement(
-                    "h3",
-                    null,
-                    React.createElement(
-                      "a",
-                      { href: "product-details.html" },
-                      "Onions"
-                    )
-                  ),
-                  React.createElement(
-                    "p",
-                    null,
-                    "$2.00"
-                  )
-                ),
-                React.createElement(
-                  "div",
-                  { className: "product-card__right" },
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" })
-                )
-              )
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "col-md-6 col-lg-4" },
-            React.createElement(
-              "div",
-              { className: "product-card" },
-              React.createElement(
-                "div",
-                { className: "product-card__image" },
-                React.createElement("img", { src: "assets/images/products/product-1-9.jpg", alt: "" }),
-                React.createElement(
-                  "div",
-                  { className: "product-card__image-content" },
-                  React.createElement(
-                    "a",
-                    { href: "#" },
-                    React.createElement("i", { className: "organik-icon-heart" })
-                  ),
-                  React.createElement(
-                    "a",
-                    { href: "cart.html" },
-                    React.createElement("i", { className: "organik-icon-shopping-cart" })
-                  )
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "product-card__content" },
-                React.createElement(
-                  "div",
-                  { className: "product-card__left" },
-                  React.createElement(
-                    "h3",
-                    null,
-                    React.createElement(
-                      "a",
-                      { href: "product-details.html" },
-                      "Cabbage"
-                    )
-                  ),
-                  React.createElement(
-                    "p",
-                    null,
-                    "$3.00"
-                  )
-                ),
-                React.createElement(
-                  "div",
-                  { className: "product-card__right" },
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" }),
-                  React.createElement("i", { className: "fa fa-star" })
-                )
-              )
-            )
+            null,
+            "Loading..."
           )
         ),
         React.createElement(
