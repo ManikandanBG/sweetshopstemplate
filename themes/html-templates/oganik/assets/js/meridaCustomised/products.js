@@ -1,8 +1,29 @@
 class ProductsContainer extends React.Component {
   constructor(props) {
     super(props);
+
+    this.sortBy = {
+      rateAscending: {
+        func: this.sortItemByRate,
+        displayValue: "Rate Ascending"
+      },
+      rateDescending: {
+        func: (firstItem, secondItem) => this.sortItemByRate(firstItem, secondItem) * -1,
+        displayValue: "Rate Descending"
+      },
+      nameAscending: {
+        func: this.sortItemByName,
+        displayValue: "Alphabetically Ascending"
+      },
+      nameDescending: {
+        func: (firstItem, secondItem) => this.sortItemByName(firstItem, secondItem) * -1,
+        displayValue: "Alphabetically Descending"
+      }
+    };
+
     this.state = {
-      searchQuery: ""
+      searchQuery: "",
+      sortByKey: Object.entries(this.sortBy)[0][0]
     };
     this.getItemsUrl = "https://script.google.com/macros/s/AKfycbxiXQZEVPC92sOY8C6IY8-iErL06pA-qMUBhyCMsDIp1mTO-r0LEFPcsthURdfBUIF7/exec";
     this.filterItems = this.filterItems.bind(this);
@@ -12,6 +33,8 @@ class ProductsContainer extends React.Component {
     this.intialiseNoUiSlider = this.intialiseNoUiSlider.bind(this);
     this.handlePriceRangeChange = this.handlePriceRangeChange.bind(this);
     this.filterByPriceRange = this.filterByPriceRange.bind(this);
+    this.sortItemByName = this.sortItemByName.bind(this);
+    this.handleSortByChange = this.handleSortByChange.bind(this);
   }
 
   componentDidMount() {
@@ -59,8 +82,16 @@ class ProductsContainer extends React.Component {
     this.setState({ minPrice, maxPrice });
   }
 
+  handleSortByChange(event) {
+    this.setState({ sortByKey: event.target.value });
+  }
+
   sortItemByRate(firstItem, secondItem) {
     return firstItem.rate - secondItem.rate;
+  }
+
+  sortItemByName(firstItem, secondItem) {
+    return firstItem.name.localeCompare(secondItem.name);
   }
 
   filterBySearchQuery(item) {
@@ -122,7 +153,10 @@ class ProductsContainer extends React.Component {
             React.createElement(
               "div",
               { className: "product-sidebar__price-range" },
-              React.createElement("div", { className: "range-slider-price", id: "range-slider-price" }),
+              React.createElement("div", {
+                className: "range-slider-price",
+                id: "range-slider-price"
+              }),
               React.createElement(
                 "div",
                 { className: "form-group" },
@@ -237,43 +271,34 @@ class ProductsContainer extends React.Component {
           React.createElement(
             "p",
             null,
-            "Showing 1\u20139 of ",
+            "Showing 1\u20139 of",
             this.state && this.state.items ? this.state.items.length : 0,
-            " results"
+            "results"
           ),
           React.createElement(
             "div",
             { className: "product-sorter__select" },
             React.createElement(
               "select",
-              { className: "selectpicker" },
-              React.createElement(
-                "option",
-                { value: "#" },
-                "Sort by popular"
-              ),
-              React.createElement(
-                "option",
-                { value: "#" },
-                "Sort by popular"
-              ),
-              React.createElement(
-                "option",
-                { value: "#" },
-                "Sort by popular"
-              ),
-              React.createElement(
-                "option",
-                { value: "#" },
-                "Sort by popular"
-              )
+              {
+                className: "selectpicker",
+                value: this.state.sortByKey || Object.entries(this.sortBy)[0][0],
+                onChange: this.handleSortByChange
+              },
+              Object.entries(this.sortBy).map(([sortByKey, sortByInst]) => {
+                return React.createElement(
+                  "option",
+                  { value: sortByKey },
+                  sortByInst.displayValue
+                );
+              })
             )
           )
         ),
         React.createElement(
           "div",
           { className: "row" },
-          this.state && this.state.items ? this.state.items.filter(this.filterItems).map(function (item, i) {
+          this.state && this.state.items ? this.state.items.sort(this.sortBy[this.state.sortByKey].func).filter(this.filterItems).map(function (item, i) {
             return React.createElement(
               "div",
               { className: "col-md-6 col-lg-4", key: i },
@@ -283,11 +308,7 @@ class ProductsContainer extends React.Component {
                 React.createElement(
                   "div",
                   { className: "product-card__image" },
-                  React.createElement("img", {
-                    src: item.imgUrl,
-                    className: "img-fluid",
-                    alt: ""
-                  }),
+                  React.createElement("img", { src: item.imgUrl, className: "img-fluid", alt: "" }),
                   React.createElement(
                     "div",
                     { className: "product-card__image-content" },
