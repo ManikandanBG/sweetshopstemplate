@@ -9,19 +9,54 @@ class ProductsContainer extends React.Component {
     this.filterBySearchQuery = this.filterBySearchQuery.bind(this);
     this.handleSearchQueryChange = this.handleSearchQueryChange.bind(this);
     this.sortItemByRate = this.sortItemByRate.bind(this);
+    this.intialiseNoUiSlider = this.intialiseNoUiSlider.bind(this);
+    this.handlePriceRangeChange = this.handlePriceRangeChange.bind(this);
+    this.filterByPriceRange = this.filterByPriceRange.bind(this);
   }
 
   componentDidMount() {
     const that = this;
     $.getJSON(that.getItemsUrl, {}, function (items) {
       that.setState({
-        items
+        items,
+        minPrice: 0,
+        maxPrice: 0
       });
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!document.getElementById("range-slider-price").noUiSlider) {
+      this.intialiseNoUiSlider();
+    }
+  }
+
+  intialiseNoUiSlider() {
+    const that = this;
+    const priceRange = document.getElementById("range-slider-price");
+    const items = [...this.state.items].sort(this.sortItemByRate);
+    const minPrice = items[0].rate;
+    const maxPrice = items[items.length - 1].rate;
+
+    noUiSlider.create(priceRange, {
+      start: [minPrice, maxPrice],
+      limit: maxPrice - minPrice,
+      behaviour: "drag",
+      connect: true,
+      step: 1,
+      range: { min: minPrice, max: maxPrice }
+    });
+    priceRange.noUiSlider.on("update", function (values, handle) {
+      that.handlePriceRangeChange(values.map(val => parseInt(val)));
     });
   }
 
   handleSearchQueryChange(event) {
     this.setState({ searchQuery: event.target.value });
+  }
+
+  handlePriceRangeChange([minPrice, maxPrice]) {
+    this.setState({ minPrice, maxPrice });
   }
 
   sortItemByRate(firstItem, secondItem) {
@@ -36,8 +71,16 @@ class ProductsContainer extends React.Component {
     return item.name.toLowerCase().includes(this.state.searchQuery.toLowerCase());
   }
 
+  filterByPriceRange(item) {
+    if (!this.state || !(this.state.minPrice && this.state.maxPrice)) {
+      return true;
+    }
+
+    return this.state.minPrice <= item.rate && item.rate <= this.state.maxPrice;
+  }
+
   filterItems(item) {
-    return this.filterBySearchQuery(item);
+    return this.filterBySearchQuery(item) && this.filterByPriceRange(item);
   }
 
   render() {
@@ -79,7 +122,7 @@ class ProductsContainer extends React.Component {
             React.createElement(
               "div",
               { className: "product-sidebar__price-range" },
-              React.createElement("input", { type: "range", min: "1", max: "100", value: "50", "class": "slider", id: "myRange" }),
+              React.createElement("div", { className: "range-slider-price", id: "range-slider-price" }),
               React.createElement(
                 "div",
                 { className: "form-group" },
@@ -92,8 +135,8 @@ class ProductsContainer extends React.Component {
                     "$",
                     React.createElement(
                       "span",
-                      { id: "min-value-rangeslider" },
-                      "12"
+                      null,
+                      this.state.minPrice
                     )
                   ),
                   React.createElement(
@@ -105,7 +148,11 @@ class ProductsContainer extends React.Component {
                     "p",
                     null,
                     "$",
-                    React.createElement("span", { id: "max-value-rangeslider" })
+                    React.createElement(
+                      "span",
+                      null,
+                      this.state.maxPrice
+                    )
                   )
                 ),
                 React.createElement(

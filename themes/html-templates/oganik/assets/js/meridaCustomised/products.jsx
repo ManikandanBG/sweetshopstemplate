@@ -9,6 +9,9 @@ class ProductsContainer extends React.Component {
     this.filterBySearchQuery = this.filterBySearchQuery.bind(this);
     this.handleSearchQueryChange = this.handleSearchQueryChange.bind(this);
     this.sortItemByRate = this.sortItemByRate.bind(this);
+    this.intialiseNoUiSlider = this.intialiseNoUiSlider.bind(this);
+    this.handlePriceRangeChange = this.handlePriceRangeChange.bind(this);
+    this.filterByPriceRange = this.filterByPriceRange.bind(this);
   }
 
   componentDidMount() {
@@ -19,13 +22,45 @@ class ProductsContainer extends React.Component {
       function (items) {
         that.setState({
           items,
+          minPrice : 0,
+          maxPrice : 0
         });
       }
     );
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if(!document.getElementById("range-slider-price").noUiSlider) {
+      this.intialiseNoUiSlider();
+    }
+  }
+
+  intialiseNoUiSlider() {
+    const that = this;
+    const priceRange = document.getElementById("range-slider-price");
+    const items = [...this.state.items].sort(this.sortItemByRate);
+    const minPrice = items[0].rate;
+    const maxPrice = items[items.length -1].rate;
+
+    noUiSlider.create(priceRange, {
+      start: [minPrice, maxPrice],
+      limit: maxPrice -  minPrice,
+      behaviour: "drag",
+      connect: true,
+      step : 1,
+      range: { min: minPrice, max: maxPrice },
+    });
+    priceRange.noUiSlider.on("update", function (values, handle) {
+      that.handlePriceRangeChange(values.map(val => parseInt(val)));
+    });
+  }
+
   handleSearchQueryChange(event) {
     this.setState({searchQuery: event.target.value});
+  }
+
+  handlePriceRangeChange([minPrice, maxPrice]) {
+    this.setState({minPrice, maxPrice});
   }
 
   sortItemByRate(firstItem, secondItem) {
@@ -40,9 +75,17 @@ class ProductsContainer extends React.Component {
     return item.name.toLowerCase().includes(this.state.searchQuery.toLowerCase());
   }
 
+  filterByPriceRange(item) {
+    if (!this.state || !(this.state.minPrice && this.state.maxPrice)) {
+        return true;
+    }
+
+    return this.state.minPrice <= item.rate && item.rate <= this.state.maxPrice;
+  }
+
 
   filterItems(item) {
-    return this.filterBySearchQuery(item);
+    return this.filterBySearchQuery(item) && this.filterByPriceRange(item);
   }
 
   render() {
@@ -67,18 +110,15 @@ class ProductsContainer extends React.Component {
             <div className="product-sidebar__single">
               <h3>Price</h3>
               <div className="product-sidebar__price-range">
-                {
-                    <input type="range" min="1" max="100" value="50" class="slider" id="myRange" />
-                }
-                
+                <div className="range-slider-price" id="range-slider-price"></div>
                 <div className="form-group">
                   <div className="left">
                     <p>
-                      $<span id="min-value-rangeslider">12</span>
+                      $<span>{this.state.minPrice}</span>
                     </p>
                     <span>-</span>
                     <p>
-                      $<span id="max-value-rangeslider"></span>
+                      $<span>{this.state.maxPrice}</span>
                     </p>
                   </div>
                   <div className="right">
