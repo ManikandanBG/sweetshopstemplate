@@ -3,6 +3,10 @@ class ProductsContainer extends React.Component {
     super(props);
 
     this.sortBy = {
+      default : {
+        func : () => 0,
+        displayValue : "Sort By"
+      },
       rateAscending: {
         func: this.sortItemByRate,
         displayValue: "Rate Ascending",
@@ -206,7 +210,7 @@ class ProductsContainer extends React.Component {
             <div className="product-sorter__select">
               <select
                 className="selectpicker"
-                value={this.state.sortByKey || Object.entries(this.sortBy)[0][0]}
+                value={this.state.sortByKey || 0}
                 onChange={this.handleSortByChange}
               >
                 {Object.entries(this.sortBy).map(([sortByKey, sortByInst]) => {
@@ -217,7 +221,7 @@ class ProductsContainer extends React.Component {
           </div>
           <div className="row">
             {this.state && this.state.items ? (
-              this.state.items.sort(this.sortBy[this.state.sortByKey].func).filter(this.filterItems).map(function (item, i) {
+              [...this.state.items].sort(this.sortBy[this.state.sortByKey].func).filter(this.filterItems).map(function (item, i) {
                 return (
                   <div className="col-md-6 col-lg-4" key={i}>
                     <div className="product-card">
