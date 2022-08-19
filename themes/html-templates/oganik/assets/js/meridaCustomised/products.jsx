@@ -266,6 +266,4 @@ class ProductsContainer extends React.Component {
   }
 }
 
-ReactDOM.createRoot(document.getElementById("productsContainer")).render(
-  <ProductsContainer />
-);
+ReactDOM.createRoot(document.getElementById("productsContainer")).render(<ProductsContainer />);
