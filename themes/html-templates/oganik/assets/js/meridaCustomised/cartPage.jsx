@@ -1,9 +1,21 @@
 class CartPageContainer extends React.Component {
   constructor(props) {
     super(props);
+    this.cartKey = "meridaSwathiSweetsCartKey";
+    this.state = {
+        cartItems : JSON.parse(localStorage[this.cartKey])
+    }
+
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    const that = this;
+    $.getJSON(that.getItemsUrl, {}, function (items) {
+      that.setState({
+        items
+      });
+    });
+  }
 
   render() {
     return (
