@@ -45,6 +45,7 @@ class ProductsContainer extends React.Component {
     this.handleCategoryFilterChange = this.handleCategoryFilterChange.bind(this);
     this.filterByCategory = this.filterByCategory.bind(this);
     this.loadMoreItems = this.loadMoreItems.bind(this);
+    this.initialiseBootstrapSelector = this.initialiseBootstrapSelector.bind(this);
 
     this.state = {
       searchQuery: "",
@@ -69,6 +70,10 @@ class ProductsContainer extends React.Component {
     if (!document.getElementById("range-slider-price").noUiSlider) {
       this.intialiseNoUiSlider();
     }
+
+    {
+      this.initialiseBootstrapSelector();
+    }
   }
 
   intialiseNoUiSlider() {
@@ -89,6 +94,10 @@ class ProductsContainer extends React.Component {
     priceRange.noUiSlider.on("update", function (values, handle) {
       that.handlePriceRangeChange(values.map((val) => parseInt(val)));
     });
+  }
+
+  initialiseBootstrapSelector() {
+    $("div.product-sorter__select > select.selectpicker").selectpicker();
   }
 
   handleSearchQueryChange(event) {
@@ -253,9 +262,6 @@ class ProductsContainer extends React.Component {
             <div className="product-sorter">
               <p>{`Showing 1–${itemsInDisplay.length} of ${this.state.items.length} results`}</p>
               <div className="product-sorter__select">
-                <select className="selectpicker">
-                  <option>abcd</option>
-                </select>
                 <select
                   className="selectpicker"
                   value={this.state.sortByKey || 0}
