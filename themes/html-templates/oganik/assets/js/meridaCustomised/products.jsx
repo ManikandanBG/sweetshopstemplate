@@ -3,9 +3,9 @@ class ProductsContainer extends React.Component {
     super(props);
 
     this.sortBy = {
-      default : {
-        func : () => 0,
-        displayValue : "Sort By"
+      default: {
+        func: () => 0,
+        displayValue: "Sort By",
       },
       rateAscending: {
         func: this.sortItemByRate,
@@ -27,12 +27,12 @@ class ProductsContainer extends React.Component {
       },
     };
 
-    this.state = {
-      searchQuery: "",
-      sortByKey : Object.entries(this.sortBy)[0][0]
-    };
+    
     this.getItemsUrl =
       "https://script.google.com/macros/s/AKfycbxiXQZEVPC92sOY8C6IY8-iErL06pA-qMUBhyCMsDIp1mTO-r0LEFPcsthURdfBUIF7/exec";
+    this.itemsInDisplayIncrementSize = 9;
+
+
     this.filterItems = this.filterItems.bind(this);
     this.filterBySearchQuery = this.filterBySearchQuery.bind(this);
     this.handleSearchQueryChange = this.handleSearchQueryChange.bind(this);
@@ -42,17 +42,25 @@ class ProductsContainer extends React.Component {
     this.filterByPriceRange = this.filterByPriceRange.bind(this);
     this.sortItemByName = this.sortItemByName.bind(this);
     this.handleSortByChange = this.handleSortByChange.bind(this);
+    this.handleCategoryFilterChange = this.handleCategoryFilterChange.bind(this);
+    this.filterByCategory = this.filterByCategory.bind(this);
+    this.loadMoreItems = this.loadMoreItems.bind(this);
 
-    
+    this.state = {
+      searchQuery: "",
+      sortByKey: Object.entries(this.sortBy)[0][0],
+      selectedCategories: new Set(),
+      minPrice: 0,
+      maxPrice: 0,
+      itemsInDisplaySize : this.itemsInDisplayIncrementSize,
+    };
   }
 
   componentDidMount() {
     const that = this;
     $.getJSON(that.getItemsUrl, {}, function (items) {
       that.setState({
-        items,
-        minPrice: 0,
-        maxPrice: 0,
+        items
       });
     });
   }
@@ -92,7 +100,21 @@ class ProductsContainer extends React.Component {
   }
 
   handleSortByChange(event) {
-    this.setState({ sortByKey : event.target.value });
+    this.setState({ sortByKey: event.target.value });
+  }
+
+  handleCategoryFilterChange(selectedCategory) {
+    this.setState((prevState, prevProps) => {
+      if (prevState.selectedCategories.has(selectedCategory)) {
+        prevState.selectedCategories.delete(selectedCategory);
+      } else {
+        prevState.selectedCategories.add(selectedCategory);
+      }
+
+      return {
+        selectedCategories: prevState.selectedCategories,
+      };
+    });
   }
 
   sortItemByRate(firstItem, secondItem) {
@@ -101,6 +123,14 @@ class ProductsContainer extends React.Component {
 
   sortItemByName(firstItem, secondItem) {
     return firstItem.name.localeCompare(secondItem.name);
+  }
+
+  filterByCategory(item) {
+    if (!this.state || this.state.selectedCategories.size <= 0) {
+      return true;
+    }
+
+    return this.state.selectedCategories.has(item.category);
   }
 
   filterBySearchQuery(item) {
@@ -121,107 +151,130 @@ class ProductsContainer extends React.Component {
     return this.state.minPrice <= item.rate && item.rate <= this.state.maxPrice;
   }
 
-
   filterItems(item) {
-    return this.filterBySearchQuery(item) && this.filterByPriceRange(item);
+    return (
+      this.filterBySearchQuery(item) &&
+      this.filterByPriceRange(item) &&
+      this.filterByCategory(item)
+    );
+  }
+
+  loadMoreItems() {
+    this.setState((prevState, prevProps) => {
+      return {
+        itemsInDisplaySize : prevState.itemsInDisplaySize + this.itemsInDisplayIncrementSize
+      }
+    })
   }
 
   render() {
-    return (
-      <div className="row">
-        <div className="col-sm-12 col-md-12 col-lg-3">
-          <div className="product-sidebar">
-            <div className="product-sidebar__single product-sidebar__search-widget">
-              <form action="#">
-                <input
-                  type="text"
-                  placeholder="Search"
-                  value={this.state ? this.state.searchQuery : ""}
-                  onChange={this.handleSearchQueryChange}
-                />
-                <button
-                  className="organik-icon-magnifying-glass"
-                  type="submit"
-                ></button>
-              </form>
-            </div>
-            <div className="product-sidebar__single">
-              <h3>Price</h3>
-              <div className="product-sidebar__price-range">
-                <div
-                  className="range-slider-price"
-                  id="range-slider-price"
-                ></div>
-                <div className="form-group">
-                  <div className="left">
-                    <p>
-                      $<span>{this.state.minPrice}</span>
-                    </p>
-                    <span>-</span>
-                    <p>
-                      $<span>{this.state.maxPrice}</span>
-                    </p>
-                  </div>
-                  <div className="right">
-                    <input type="submit" className="thm-btn" value="Filter" />
+    if (this.state && this.state.items) {
+      let filteredItems = [...this.state.items]
+      .sort(this.sortBy[this.state.sortByKey].func)
+      .filter(this.filterItems)
+      let itemsInDisplay = filteredItems.slice(0, this.state.itemsInDisplaySize);
+
+
+      return (
+        <div className="row">
+          <div className="col-sm-12 col-md-12 col-lg-3">
+            <div className="product-sidebar">
+              <div className="product-sidebar__single product-sidebar__search-widget">
+                <form action="#">
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    value={this.state ? this.state.searchQuery : ""}
+                    onChange={this.handleSearchQueryChange}
+                  />
+                  <button
+                    className="organik-icon-magnifying-glass"
+                    type="submit"
+                  ></button>
+                </form>
+              </div>
+              <div className="product-sidebar__single">
+                <h3>Price</h3>
+                <div className="product-sidebar__price-range">
+                  <div
+                    className="range-slider-price"
+                    id="range-slider-price"
+                  ></div>
+                  <div className="form-group">
+                    <div className="left">
+                      <p>
+                        $<span>{this.state.minPrice}</span>
+                      </p>
+                      <span>-</span>
+                      <p>
+                        $<span>{this.state.maxPrice}</span>
+                      </p>
+                    </div>
+                    <div className="right">
+                      <input type="submit" className="thm-btn" value="Filter" />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="product-sidebar__single">
-              <h3>Categories</h3>
-              <ul className="list-unstyled product-sidebar__links">
-                <li>
-                  <a href="#">
-                    Vegetables <i className="fa fa-angle-right"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Fresh Fruits <i className="fa fa-angle-right"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Dairy Products <i className="fa fa-angle-right"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Tomatos <i className="fa fa-angle-right"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    Oranges <i className="fa fa-angle-right"></i>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div className="col-sm-12 col-md-12 col-lg-9">
-          <div className="product-sorter">
-            <p>
-              Showing 1–9 of
-              {this.state && this.state.items ? this.state.items.length : 0}
-              results
-            </p>
-            <div className="product-sorter__select">
-              <select
-                className="selectpicker"
-                value={this.state.sortByKey || 0}
-                onChange={this.handleSortByChange}
-              >
-                {Object.entries(this.sortBy).map(([sortByKey, sortByInst]) => {
-                  return <option value={sortByKey}>{sortByInst.displayValue}</option>;
-                })}
-              </select>
+              <div className="product-sidebar__single">
+                <h3>Categories</h3>
+                <ul className="list-unstyled product-sidebar__links">
+                  {[
+                    ...this.state.items
+                      .reduce((set, item) => set.add(item.category), new Set())
+                      .values(),
+                  ].map((category) => {
+                    return (
+                      <li
+                        onClick={() =>
+                          this.handleCategoryFilterChange(category)
+                        }
+                        key={category}
+                        style={{
+                          cursor: "pointer",
+                        }}
+                      >
+                        {category}{" "}
+                        <i
+                          className={
+                            this.state.selectedCategories.has(category)
+                              ? "fa fa-check"
+                              : ""
+                          }
+                        ></i>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </div>
           </div>
-          <div className="row">
-            {this.state && this.state.items ? (
-              [...this.state.items].sort(this.sortBy[this.state.sortByKey].func).filter(this.filterItems).map(function (item, i) {
+          <div className="col-sm-12 col-md-12 col-lg-9">
+            <div className="product-sorter">
+              <p>{`Showing 1–${itemsInDisplay.length} of ${this.state.items.length} results`}</p>
+              <div className="product-sorter__select">
+                <select className="selectpicker">
+                  <option>abcd</option>
+                </select>
+                <select
+                  className="selectpicker"
+                  value={this.state.sortByKey || 0}
+                  onChange={this.handleSortByChange}
+                >
+                  {Object.entries(this.sortBy).map(
+                    ([sortByKey, sortByInst]) => {
+                      return (
+                        <option value={sortByKey} key={sortByKey}>
+                          {sortByInst.displayValue}
+                        </option>
+                      );
+                    }
+                  )}
+                </select>
+              </div>
+            </div>
+            <div className="row">
+              {itemsInDisplay.map(function (item, i) {
                 return (
                   <div className="col-md-6 col-lg-4" key={i}>
                     <div className="product-card">
@@ -254,20 +307,22 @@ class ProductsContainer extends React.Component {
                     </div>
                   </div>
                 );
-              })
-            ) : (
-              <div>Loading...</div>
+              })}
+            </div>
+            {filteredItems.length > itemsInDisplay.length && (
+              <div className="text-center">
+                <a className="thm-btn products__load-more" onClick={this.loadMoreItems}>Load More</a>
+              </div>
             )}
           </div>
-          <div className="text-center">
-            <a href="#" className="thm-btn products__load-more">
-              Load More
-            </a>
-          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return <div>Loading...</div>;
+    }
   }
 }
 
-ReactDOM.createRoot(document.getElementById("productsContainer")).render(<ProductsContainer />);
+ReactDOM.createRoot(document.getElementById("productsContainer")).render(
+  <ProductsContainer />
+);
