@@ -1,4 +1,4 @@
-class ProductsContainer extends React.Component {
+class ProductsContainer extends BaseContainer {
   constructor(props) {
     super(props);
 
@@ -28,8 +28,7 @@ class ProductsContainer extends React.Component {
     };
 
     
-    this.getItemsUrl =
-      "https://script.google.com/macros/s/AKfycbxiXQZEVPC92sOY8C6IY8-iErL06pA-qMUBhyCMsDIp1mTO-r0LEFPcsthURdfBUIF7/exec";
+    
     this.itemsInDisplayIncrementSize = 9;
 
 
@@ -176,156 +175,152 @@ class ProductsContainer extends React.Component {
     })
   }
 
-  render() {
-    if (this.state && this.state.items) {
-      let filteredItems = [...this.state.items]
+  renderPage() {
+    let filteredItems = [...this.state.items]
       .sort(this.sortBy[this.state.sortByKey].func)
       .filter(this.filterItems)
-      let itemsInDisplay = filteredItems.slice(0, this.state.itemsInDisplaySize);
+    
+    let itemsInDisplay = filteredItems.slice(0, this.state.itemsInDisplaySize);
 
-
-      return (
-        <div className="row">
-          <div className="col-sm-12 col-md-12 col-lg-3">
-            <div className="product-sidebar">
-              <div className="product-sidebar__single product-sidebar__search-widget">
-                <form action="#">
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    value={this.state ? this.state.searchQuery : ""}
-                    onChange={this.handleSearchQueryChange}
-                  />
-                  <button
-                    className="organik-icon-magnifying-glass"
-                    type="submit"
-                  ></button>
-                </form>
-              </div>
-              <div className="product-sidebar__single">
-                <h3>Price</h3>
-                <div className="product-sidebar__price-range">
-                  <div
-                    className="range-slider-price"
-                    id="range-slider-price"
-                  ></div>
-                  <div className="form-group">
-                    <div className="left">
-                      <p>
-                        $<span>{this.state.minPrice}</span>
-                      </p>
-                      <span>-</span>
-                      <p>
-                        $<span>{this.state.maxPrice}</span>
-                      </p>
-                    </div>
-                    <div className="right">
-                      <input type="submit" className="thm-btn" value="Filter" />
-                    </div>
+    return (
+      <div className="row">
+        <div className="col-sm-12 col-md-12 col-lg-3">
+          <div className="product-sidebar">
+            <div className="product-sidebar__single product-sidebar__search-widget">
+              <form action="#">
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={this.state ? this.state.searchQuery : ""}
+                  onChange={this.handleSearchQueryChange}
+                />
+                <button
+                  className="organik-icon-magnifying-glass"
+                  type="submit"
+                ></button>
+              </form>
+            </div>
+            <div className="product-sidebar__single">
+              <h3>Price</h3>
+              <div className="product-sidebar__price-range">
+                <div
+                  className="range-slider-price"
+                  id="range-slider-price"
+                ></div>
+                <div className="form-group">
+                  <div className="left">
+                    <p>
+                      $<span>{this.state.minPrice}</span>
+                    </p>
+                    <span>-</span>
+                    <p>
+                      $<span>{this.state.maxPrice}</span>
+                    </p>
+                  </div>
+                  <div className="right">
+                    <input type="submit" className="thm-btn" value="Filter" />
                   </div>
                 </div>
               </div>
-              <div className="product-sidebar__single">
-                <h3>Categories</h3>
-                <ul className="list-unstyled product-sidebar__links">
-                  {[
-                    ...this.state.items
-                      .reduce((set, item) => set.add(item.category), new Set())
-                      .values(),
-                  ].map((category) => {
-                    return (
-                      <li
-                        onClick={() =>
-                          this.handleCategoryFilterChange(category)
+            </div>
+            <div className="product-sidebar__single">
+              <h3>Categories</h3>
+              <ul className="list-unstyled product-sidebar__links">
+                {[
+                  ...this.state.items
+                    .reduce((set, item) => set.add(item.category), new Set())
+                    .values(),
+                ].map((category) => {
+                  return (
+                    <li
+                      onClick={() =>
+                        this.handleCategoryFilterChange(category)
+                      }
+                      key={category}
+                      style={{
+                        cursor: "pointer",
+                      }}
+                    >
+                      {category}{" "}
+                      <i
+                        className={
+                          this.state.selectedCategories.has(category)
+                            ? "fa fa-check"
+                            : ""
                         }
-                        key={category}
-                        style={{
-                          cursor: "pointer",
-                        }}
-                      >
-                        {category}{" "}
-                        <i
-                          className={
-                            this.state.selectedCategories.has(category)
-                              ? "fa fa-check"
-                              : ""
-                          }
-                        ></i>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+                      ></i>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           </div>
-          <div className="col-sm-12 col-md-12 col-lg-9">
-            <div className="product-sorter">
-              <p>{`Showing 1–${itemsInDisplay.length} of ${this.state.items.length} results`}</p>
-              <div className="product-sorter__select">
-                <select
-                  className="selectpicker"
-                  value={this.state.sortByKey || 0}
-                  onChange={this.handleSortByChange}
-                >
-                  {Object.entries(this.sortBy).map(
-                    ([sortByKey, sortByInst]) => {
-                      return (
-                        <option value={sortByKey} key={sortByKey}>
-                          {sortByInst.displayValue}
-                        </option>
-                      );
-                    }
-                  )}
-                </select>
-              </div>
+        </div>
+        <div className="col-sm-12 col-md-12 col-lg-9">
+          <div className="product-sorter">
+            <p>{`Showing 1–${itemsInDisplay.length} of ${this.state.items.length} results`}</p>
+            <div className="product-sorter__select">
+              <select
+                className="selectpicker"
+                value={this.state.sortByKey || 0}
+                onChange={this.handleSortByChange}
+              >
+                {Object.entries(this.sortBy).map(
+                  ([sortByKey, sortByInst]) => {
+                    return (
+                      <option value={sortByKey} key={sortByKey}>
+                        {sortByInst.displayValue}
+                      </option>
+                    );
+                  }
+                )}
+              </select>
             </div>
-            <div className="row">
-              {itemsInDisplay.map(function (item, i) {
-                return (
-                  <div className="col-md-6 col-lg-4" key={i}>
-                    <div className="product-card">
-                      <div className="product-card__image">
-                        <img src={item.imgUrl} className="img-fluid" alt="" />
-                        <div className="product-card__image-content">
-                          <a href="#">
-                            <i className="organik-icon-heart"></i>
-                          </a>
-                          <a href="cart.html">
-                            <i className="organik-icon-shopping-cart"></i>
-                          </a>
-                        </div>
+          </div>
+          <div className="row">
+            {itemsInDisplay.map(function (item, i) {
+              return (
+                <div className="col-md-6 col-lg-4" key={i}>
+                  <div className="product-card">
+                    <div className="product-card__image">
+                      <img src={item.imgUrl} className="img-fluid" alt="" />
+                      <div className="product-card__image-content">
+                        <a href="#">
+                          <i className="organik-icon-heart"></i>
+                        </a>
+                        <a href="cart.html">
+                          <i className="organik-icon-shopping-cart"></i>
+                        </a>
                       </div>
-                      <div className="product-card__content">
-                        <div className="product-card__left">
-                          <h3>
-                            <a href="product-details.html">{item.name}</a>
-                          </h3>
-                          <p>${item.rate}</p>
-                        </div>
-                        <div className="product-card__right">
-                          <i className="fa fa-star"></i>
-                          <i className="fa fa-star"></i>
-                          <i className="fa fa-star"></i>
-                          <i className="fa fa-star"></i>
-                          <i className="fa fa-star"></i>
-                        </div>
+                    </div>
+                    <div className="product-card__content">
+                      <div className="product-card__left">
+                        <h3>
+                          <a href="product-details.html">{item.name}</a>
+                        </h3>
+                        <p>${item.rate}</p>
+                      </div>
+                      <div className="product-card__right">
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-            {filteredItems.length > itemsInDisplay.length && (
-              <div className="text-center">
-                <a className="thm-btn products__load-more" onClick={this.loadMoreItems}>Load More</a>
-              </div>
-            )}
+                </div>
+              );
+            })}
           </div>
+          {filteredItems.length > itemsInDisplay.length && (
+            <div className="text-center">
+              <a className="thm-btn products__load-more" onClick={this.loadMoreItems}>Load More</a>
+            </div>
+          )}
         </div>
-      );
-    } else {
-      return <div>Loading...</div>;
-    }
+      </div>
+    );
   }
 }
 

@@ -1,4 +1,4 @@
-class ProductsContainer extends React.Component {
+class ProductsContainer extends BaseContainer {
   constructor(props) {
     super(props);
 
@@ -25,7 +25,6 @@ class ProductsContainer extends React.Component {
       }
     };
 
-    this.getItemsUrl = "https://script.google.com/macros/s/AKfycbxiXQZEVPC92sOY8C6IY8-iErL06pA-qMUBhyCMsDIp1mTO-r0LEFPcsthURdfBUIF7/exec";
     this.itemsInDisplayIncrementSize = 9;
 
     this.filterItems = this.filterItems.bind(this);
@@ -165,239 +164,232 @@ class ProductsContainer extends React.Component {
     });
   }
 
-  render() {
-    if (this.state && this.state.items) {
-      let filteredItems = [...this.state.items].sort(this.sortBy[this.state.sortByKey].func).filter(this.filterItems);
-      let itemsInDisplay = filteredItems.slice(0, this.state.itemsInDisplaySize);
+  renderPage() {
+    let filteredItems = [...this.state.items].sort(this.sortBy[this.state.sortByKey].func).filter(this.filterItems);
 
-      return React.createElement(
+    let itemsInDisplay = filteredItems.slice(0, this.state.itemsInDisplaySize);
+
+    return React.createElement(
+      "div",
+      { className: "row" },
+      React.createElement(
         "div",
-        { className: "row" },
+        { className: "col-sm-12 col-md-12 col-lg-3" },
         React.createElement(
           "div",
-          { className: "col-sm-12 col-md-12 col-lg-3" },
+          { className: "product-sidebar" },
           React.createElement(
             "div",
-            { className: "product-sidebar" },
+            { className: "product-sidebar__single product-sidebar__search-widget" },
             React.createElement(
-              "div",
-              { className: "product-sidebar__single product-sidebar__search-widget" },
-              React.createElement(
-                "form",
-                { action: "#" },
-                React.createElement("input", {
-                  type: "text",
-                  placeholder: "Search",
-                  value: this.state ? this.state.searchQuery : "",
-                  onChange: this.handleSearchQueryChange
-                }),
-                React.createElement("button", {
-                  className: "organik-icon-magnifying-glass",
-                  type: "submit"
-                })
-              )
+              "form",
+              { action: "#" },
+              React.createElement("input", {
+                type: "text",
+                placeholder: "Search",
+                value: this.state ? this.state.searchQuery : "",
+                onChange: this.handleSearchQueryChange
+              }),
+              React.createElement("button", {
+                className: "organik-icon-magnifying-glass",
+                type: "submit"
+              })
+            )
+          ),
+          React.createElement(
+            "div",
+            { className: "product-sidebar__single" },
+            React.createElement(
+              "h3",
+              null,
+              "Price"
             ),
             React.createElement(
               "div",
-              { className: "product-sidebar__single" },
-              React.createElement(
-                "h3",
-                null,
-                "Price"
-              ),
+              { className: "product-sidebar__price-range" },
+              React.createElement("div", {
+                className: "range-slider-price",
+                id: "range-slider-price"
+              }),
               React.createElement(
                 "div",
-                { className: "product-sidebar__price-range" },
-                React.createElement("div", {
-                  className: "range-slider-price",
-                  id: "range-slider-price"
-                }),
+                { className: "form-group" },
                 React.createElement(
                   "div",
-                  { className: "form-group" },
+                  { className: "left" },
                   React.createElement(
-                    "div",
-                    { className: "left" },
-                    React.createElement(
-                      "p",
-                      null,
-                      "$",
-                      React.createElement(
-                        "span",
-                        null,
-                        this.state.minPrice
-                      )
-                    ),
+                    "p",
+                    null,
+                    "$",
                     React.createElement(
                       "span",
                       null,
-                      "-"
-                    ),
-                    React.createElement(
-                      "p",
-                      null,
-                      "$",
-                      React.createElement(
-                        "span",
-                        null,
-                        this.state.maxPrice
-                      )
+                      this.state.minPrice
                     )
                   ),
                   React.createElement(
-                    "div",
-                    { className: "right" },
-                    React.createElement("input", { type: "submit", className: "thm-btn", value: "Filter" })
+                    "span",
+                    null,
+                    "-"
+                  ),
+                  React.createElement(
+                    "p",
+                    null,
+                    "$",
+                    React.createElement(
+                      "span",
+                      null,
+                      this.state.maxPrice
+                    )
                   )
+                ),
+                React.createElement(
+                  "div",
+                  { className: "right" },
+                  React.createElement("input", { type: "submit", className: "thm-btn", value: "Filter" })
                 )
               )
+            )
+          ),
+          React.createElement(
+            "div",
+            { className: "product-sidebar__single" },
+            React.createElement(
+              "h3",
+              null,
+              "Categories"
             ),
             React.createElement(
-              "div",
-              { className: "product-sidebar__single" },
-              React.createElement(
-                "h3",
-                null,
-                "Categories"
-              ),
-              React.createElement(
-                "ul",
-                { className: "list-unstyled product-sidebar__links" },
-                [...this.state.items.reduce((set, item) => set.add(item.category), new Set()).values()].map(category => {
-                  return React.createElement(
-                    "li",
-                    {
-                      onClick: () => this.handleCategoryFilterChange(category),
-                      key: category,
-                      style: {
-                        cursor: "pointer"
-                      }
-                    },
-                    category,
-                    " ",
-                    React.createElement("i", {
-                      className: this.state.selectedCategories.has(category) ? "fa fa-check" : ""
-                    })
-                  );
-                })
-              )
+              "ul",
+              { className: "list-unstyled product-sidebar__links" },
+              [...this.state.items.reduce((set, item) => set.add(item.category), new Set()).values()].map(category => {
+                return React.createElement(
+                  "li",
+                  {
+                    onClick: () => this.handleCategoryFilterChange(category),
+                    key: category,
+                    style: {
+                      cursor: "pointer"
+                    }
+                  },
+                  category,
+                  " ",
+                  React.createElement("i", {
+                    className: this.state.selectedCategories.has(category) ? "fa fa-check" : ""
+                  })
+                );
+              })
+            )
+          )
+        )
+      ),
+      React.createElement(
+        "div",
+        { className: "col-sm-12 col-md-12 col-lg-9" },
+        React.createElement(
+          "div",
+          { className: "product-sorter" },
+          React.createElement(
+            "p",
+            null,
+            `Showing 1–${itemsInDisplay.length} of ${this.state.items.length} results`
+          ),
+          React.createElement(
+            "div",
+            { className: "product-sorter__select" },
+            React.createElement(
+              "select",
+              {
+                className: "selectpicker",
+                value: this.state.sortByKey || 0,
+                onChange: this.handleSortByChange
+              },
+              Object.entries(this.sortBy).map(([sortByKey, sortByInst]) => {
+                return React.createElement(
+                  "option",
+                  { value: sortByKey, key: sortByKey },
+                  sortByInst.displayValue
+                );
+              })
             )
           )
         ),
         React.createElement(
           "div",
-          { className: "col-sm-12 col-md-12 col-lg-9" },
-          React.createElement(
-            "div",
-            { className: "product-sorter" },
-            React.createElement(
-              "p",
-              null,
-              `Showing 1–${itemsInDisplay.length} of ${this.state.items.length} results`
-            ),
-            React.createElement(
+          { className: "row" },
+          itemsInDisplay.map(function (item, i) {
+            return React.createElement(
               "div",
-              { className: "product-sorter__select" },
+              { className: "col-md-6 col-lg-4", key: i },
               React.createElement(
-                "select",
-                {
-                  className: "selectpicker",
-                  value: this.state.sortByKey || 0,
-                  onChange: this.handleSortByChange
-                },
-                Object.entries(this.sortBy).map(([sortByKey, sortByInst]) => {
-                  return React.createElement(
-                    "option",
-                    { value: sortByKey, key: sortByKey },
-                    sortByInst.displayValue
-                  );
-                })
-              )
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "row" },
-            itemsInDisplay.map(function (item, i) {
-              return React.createElement(
                 "div",
-                { className: "col-md-6 col-lg-4", key: i },
+                { className: "product-card" },
                 React.createElement(
                   "div",
-                  { className: "product-card" },
+                  { className: "product-card__image" },
+                  React.createElement("img", { src: item.imgUrl, className: "img-fluid", alt: "" }),
                   React.createElement(
                     "div",
-                    { className: "product-card__image" },
-                    React.createElement("img", { src: item.imgUrl, className: "img-fluid", alt: "" }),
+                    { className: "product-card__image-content" },
                     React.createElement(
-                      "div",
-                      { className: "product-card__image-content" },
+                      "a",
+                      { href: "#" },
+                      React.createElement("i", { className: "organik-icon-heart" })
+                    ),
+                    React.createElement(
+                      "a",
+                      { href: "cart.html" },
+                      React.createElement("i", { className: "organik-icon-shopping-cart" })
+                    )
+                  )
+                ),
+                React.createElement(
+                  "div",
+                  { className: "product-card__content" },
+                  React.createElement(
+                    "div",
+                    { className: "product-card__left" },
+                    React.createElement(
+                      "h3",
+                      null,
                       React.createElement(
                         "a",
-                        { href: "#" },
-                        React.createElement("i", { className: "organik-icon-heart" })
-                      ),
-                      React.createElement(
-                        "a",
-                        { href: "cart.html" },
-                        React.createElement("i", { className: "organik-icon-shopping-cart" })
+                        { href: "product-details.html" },
+                        item.name
                       )
+                    ),
+                    React.createElement(
+                      "p",
+                      null,
+                      "$",
+                      item.rate
                     )
                   ),
                   React.createElement(
                     "div",
-                    { className: "product-card__content" },
-                    React.createElement(
-                      "div",
-                      { className: "product-card__left" },
-                      React.createElement(
-                        "h3",
-                        null,
-                        React.createElement(
-                          "a",
-                          { href: "product-details.html" },
-                          item.name
-                        )
-                      ),
-                      React.createElement(
-                        "p",
-                        null,
-                        "$",
-                        item.rate
-                      )
-                    ),
-                    React.createElement(
-                      "div",
-                      { className: "product-card__right" },
-                      React.createElement("i", { className: "fa fa-star" }),
-                      React.createElement("i", { className: "fa fa-star" }),
-                      React.createElement("i", { className: "fa fa-star" }),
-                      React.createElement("i", { className: "fa fa-star" }),
-                      React.createElement("i", { className: "fa fa-star" })
-                    )
+                    { className: "product-card__right" },
+                    React.createElement("i", { className: "fa fa-star" }),
+                    React.createElement("i", { className: "fa fa-star" }),
+                    React.createElement("i", { className: "fa fa-star" }),
+                    React.createElement("i", { className: "fa fa-star" }),
+                    React.createElement("i", { className: "fa fa-star" })
                   )
                 )
-              );
-            })
-          ),
-          filteredItems.length > itemsInDisplay.length && React.createElement(
-            "div",
-            { className: "text-center" },
-            React.createElement(
-              "a",
-              { className: "thm-btn products__load-more", onClick: this.loadMoreItems },
-              "Load More"
-            )
+              )
+            );
+          })
+        ),
+        filteredItems.length > itemsInDisplay.length && React.createElement(
+          "div",
+          { className: "text-center" },
+          React.createElement(
+            "a",
+            { className: "thm-btn products__load-more", onClick: this.loadMoreItems },
+            "Load More"
           )
         )
-      );
-    } else {
-      return React.createElement(
-        "div",
-        null,
-        "Loading..."
-      );
-    }
+      )
+    );
   }
 }
 
