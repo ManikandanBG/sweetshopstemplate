@@ -172,7 +172,7 @@ class ProductsContainer extends BaseContainer {
       return {
         itemsInDisplaySize : prevState.itemsInDisplaySize + this.itemsInDisplayIncrementSize
       }
-    })
+    });
   }
 
   renderPage() {
