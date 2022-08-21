@@ -285,10 +285,10 @@ class ProductsContainer extends BaseContainer {
                     <div className="product-card__image">
                       <img src={item.imgUrl} className="img-fluid" alt="" />
                       <div className="product-card__image-content">
-                        <a href="#">
+                        {/*<a href="#">
                           <i className="organik-icon-heart"></i>
-                        </a>
-                        <a href="cart.html">
+                        </a>*/}
+                        <a className="" onClick={() => window.addCartItem(item.name)}>
                           <i className="organik-icon-shopping-cart"></i>
                         </a>
                       </div>

@@ -18,12 +18,12 @@ class CartPageContainer extends CartBaseContainer {
               </tr>
             </thead>
             <tbody>
-              {this.state.cartItems.map((cartItem) => {
+              {this.state.cartItems.map((cartItem, i) => {
                 const item = this.state.items.filter(
                   (item) => item.name === cartItem.name
                 )[0];
                 return (
-                  <tr>
+                  <tr key={i}>
                     <td>
                       <div className="product-box">
                         <img src={item.imgUrl} alt="" />

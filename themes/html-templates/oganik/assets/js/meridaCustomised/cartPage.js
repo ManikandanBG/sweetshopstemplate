@@ -49,11 +49,11 @@ class CartPageContainer extends CartBaseContainer {
           React.createElement(
             "tbody",
             null,
-            this.state.cartItems.map(cartItem => {
+            this.state.cartItems.map((cartItem, i) => {
               const item = this.state.items.filter(item => item.name === cartItem.name)[0];
               return React.createElement(
                 "tr",
-                null,
+                { key: i },
                 React.createElement(
                   "td",
                   null,

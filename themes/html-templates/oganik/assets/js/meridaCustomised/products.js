@@ -333,12 +333,7 @@ class ProductsContainer extends BaseContainer {
                     { className: "product-card__image-content" },
                     React.createElement(
                       "a",
-                      { href: "#" },
-                      React.createElement("i", { className: "organik-icon-heart" })
-                    ),
-                    React.createElement(
-                      "a",
-                      { href: "cart.html" },
+                      { className: "", onClick: () => window.addCartItem(item.name) },
                       React.createElement("i", { className: "organik-icon-shopping-cart" })
                     )
                   )
