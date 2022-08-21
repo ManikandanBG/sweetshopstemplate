@@ -119,7 +119,7 @@ class CartPageContainer extends CartBaseContainer {
                 React.createElement(
                   "td",
                   null,
-                  React.createElement("i", { className: "organik-icon-close remove-icon" })
+                  React.createElement("i", { className: "organik-icon-close remove-icon", onClick: () => this.removeCartItem(cartItem.name) })
                 )
               );
             })

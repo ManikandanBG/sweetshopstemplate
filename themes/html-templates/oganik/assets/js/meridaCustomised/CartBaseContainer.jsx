@@ -26,6 +26,15 @@ class CartBaseContainer extends BaseContainer {
         });
     }
 
+    removeCartItem(cartItemName) {
+        this.setState((prevState, prevProps) => {
+            const cartItems = prevState.cartItems.filter(cartItem => cartItem.name !== cartItemName);
+            
+            localStorage[this.cartKey] = JSON.stringify(cartItems);
+            return {cartItems : cartItems}
+        });
+    }
+
     calculateSubTotal() {
         return [...this.state.cartItems]
         .map(cartItem => Object.assign(cartItem, { rate : this.getItemFromCartItem(cartItem.name).rate}))

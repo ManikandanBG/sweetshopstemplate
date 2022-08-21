@@ -74,7 +74,7 @@ class CartPageContainer extends CartBaseContainer {
                     </td>
                     <td>${item.rate * cartItem.quantity}</td>
                     <td>
-                      <i className="organik-icon-close remove-icon"></i>
+                      <i className="organik-icon-close remove-icon" onClick={() => this.removeCartItem(cartItem.name)} ></i>
                     </td>
                   </tr>
                 );
