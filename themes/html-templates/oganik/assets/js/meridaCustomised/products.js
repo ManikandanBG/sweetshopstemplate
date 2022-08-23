@@ -1,3 +1,8 @@
+// noinspection JSUnresolvedVariable
+
+import { BaseContainer } from "./BaseContainer.js";
+import { renderContainer } from "./App.js";
+
 class ProductsContainer extends BaseContainer {
   constructor(props) {
     super(props);
@@ -388,4 +393,4 @@ class ProductsContainer extends BaseContainer {
   }
 }
 
-ReactDOM.createRoot(document.getElementById("productsContainer")).render(React.createElement(ProductsContainer, null));
+renderContainer("productsContainer", ProductsContainer);
